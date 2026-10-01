@@ -1,654 +1,221 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ConDev | Professional Roblox Scripter & Luau Engineer</title>
-    <meta
-      name="description"
-      content="Roblox Scripter & Luau Systems Engineer specializing in Strict Luau Typing (--!strict), ProfileStore, Network Optimization, and Full Game Architecture."
-    />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              roblox: "#00A2FF",
-              robloxDark: "#0077CC",
-              darkBg: "#0B0E14",
-              darkCard: "#131722",
-              darkBorder: "#222736",
-              luauBlue: "#38BDF8",
-              luauPurple: "#C084FC",
-            },
-            fontFamily: {
-              sans: ["Plus Jakarta Sans", "sans-serif"],
-              mono: ["JetBrains Mono", "monospace"],
-            },
-            animation: {
-              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-              "float": "float 6s ease-in-out infinite",
-              "shimmer": "shimmer 2.5s infinite linear",
-            },
-            keyframes: {
-              float: {
-                "0%, 100%": { transform: "translateY(0px)" },
-                "50%": { transform: "translateY(-10px)" },
-              },
-              shimmer: {
-                "0%": { backgroundPosition: "-200% 0" },
-                "100%": { backgroundPosition: "200% 0" },
-              },
-            },
-          },
-        },
-      };
-    </script>
-    <style>
-      body {
-        background-color: #0b0e14;
-        color: #e2e8f0;
-      }
-
-      /* Custom Subtle Canvas & Radial Glow */
-      .glow-bg {
-        background-image: 
-          radial-gradient(circle at 15% 15%, rgba(0, 162, 255, 0.12) 0%, transparent 40%),
-          radial-gradient(circle at 85% 75%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
-          radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
-      }
-
-      .reveal {
-        opacity: 0;
-        transform: translateY(28px);
-        transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      .reveal.active {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      .card-glow {
-        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      .card-glow:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 30px -10px rgba(0, 162, 255, 0.25);
-        border-color: rgba(0, 162, 255, 0.5);
-      }
-
-      /* Toast Notification Styling */
-      #toast {
-        visibility: hidden;
-        min-width: 250px;
-        opacity: 0;
-        transition: opacity 0.3s, bottom 0.3s;
-      }
-      #toast.show {
-        visibility: visible;
-        opacity: 1;
-        bottom: 30px;
-      }
-
-      /* Glassmorphism */
-      .glass-panel {
-        background: rgba(19, 23, 34, 0.75);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-      }
-
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #0b0e14; }
-      ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #00a2ff; }
-    </style>
-  </head>
-  <body class="antialiased selection:bg-roblox selection:text-white relative overflow-x-hidden glow-bg min-h-screen">
-    
-    <!-- Canvas Interactive Background -->
-    <canvas id="particleCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 glass-panel text-white px-6 py-3 rounded-xl border border-roblox/30 shadow-2xl flex items-center gap-3 font-mono text-sm">
-      <i class="fas fa-check-circle text-emerald-400 text-lg"></i>
-      <span id="toastMsg">Copied to clipboard!</span>
-    </div>
-
-    <!-- Navigation Header -->
-    <nav class="fixed w-full z-50 glass-panel border-b border-white/5">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="#" class="text-2xl font-bold font-mono tracking-tight group flex items-center gap-2">
-          <span class="text-roblox font-bold group-hover:scale-110 transition duration-300">&lt;</span>
-          <span class="text-white group-hover:text-roblox transition duration-300">ConDev</span>
-          <span class="text-roblox font-bold group-hover:scale-110 transition duration-300">/&gt;</span>
-        </a>
-
-        <div class="hidden md:flex items-center space-x-8 text-sm font-semibold text-gray-300">
-          <a href="#about" class="hover:text-roblox transition-all">About</a>
-          <a href="#skills" class="hover:text-roblox transition-all">Skills & Typing</a>
-          <a href="#portfolio" class="hover:text-roblox transition-all">Projects</a>
-          <a href="#contact" class="hover:text-roblox transition-all">Contact</a>
-        </div>
-
-        <div class="flex items-center gap-4">
-          <button
-            onclick="copyDiscordTag()"
-            class="hidden sm:flex items-center gap-2 px-4 py-2 bg-darkCard border border-darkBorder hover:border-roblox/50 rounded-lg text-xs font-mono text-gray-300 hover:text-white transition shadow-sm"
-            title="Click to copy Discord handle"
-          >
-            <i class="fab fa-discord text-indigo-400"></i>
-            <span>con.dev</span>
-            <i class="fas fa-copy text-gray-500 ml-1 text-[10px]"></i>
-          </button>
-
-          <a
-            href="#contact"
-            class="px-5 py-2.5 bg-gradient-to-r from-roblox to-blue-600 text-white font-bold text-sm rounded-lg hover:shadow-[0_0_20px_rgba(0,162,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition duration-200"
-          >
-            Hire Me
-          </a>
-        </div>
-      </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#c2410c">
+  <meta name="description" content="ConDev — Roblox developer and Software Engineering undergraduate. Modular Luau systems, game mechanics, and player data. Coding since January 2025.">
+  <title>ConDev | Roblox Developer & Software Engineering Student</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--orange:#c2410c;--deep:#9a3412;--bright:#f97316;--peach:#fff2e8;--paper:#fffaf6;--ink:#23201e;--muted:#71645d;--line:#eddfd5;--sans:'Plus Jakarta Sans',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
+    *,*::before,*::after{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:100px}body{margin:0;background:white;color:var(--ink);font:15px/1.7 var(--sans);-webkit-font-smoothing:antialiased}::selection{background:#fed7aa;color:#431407}
+    a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;color:inherit}img{display:block;max-width:100%}h1,h2,h3,p{margin:0}h1,h2,h3{line-height:1.2}svg{flex-shrink:0}a,button,summary{-webkit-tap-highlight-color:transparent}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--orange);outline-offset:5px;border-radius:6px}
+    .container{width:min(1160px,calc(100% - 64px));margin-inline:auto}.icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.skip-link{position:fixed;top:-80px;left:20px;z-index:100;background:var(--orange);color:white;padding:12px 18px;border-radius:8px}.skip-link:focus{top:12px}
+    .site-header{position:sticky;top:0;z-index:30;background:#fffffff0;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.nav{height:82px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:23px;letter-spacing:-1px}.brand span{color:var(--orange)}.brand-mark{width:33px;height:35px}.nav-links{display:flex;gap:30px;font-size:13px;font-weight:600;color:var(--muted)}.nav-links a:hover,.footer a:hover{color:var(--orange)}
+    .button{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:13px 21px;min-height:48px;border:1px solid var(--line);border-radius:10px;font-weight:700;font-size:13px;background:white;transition:background .2s,transform .2s,border-color .2s}.button:hover{background:var(--paper);border-color:#d6b7a0;transform:translateY(-2px)}.button-primary{background:var(--orange);border-color:var(--orange);color:white;box-shadow:0 5px 15px #c2410c18}.button-primary:hover{background:var(--deep);border-color:var(--deep)}.nav-contact{padding:10px 16px;min-height:42px;font-size:12px}
+    .mobile-nav{display:none;position:relative}.mobile-nav summary{list-style:none;cursor:pointer;display:grid;place-items:center;min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:10px}.mobile-nav summary::-webkit-details-marker{display:none}.mobile-links{position:absolute;right:0;top:56px;background:white;border:1px solid var(--line);border-radius:14px;box-shadow:0 15px 40px #43220f1a;width:200px;padding:8px}.mobile-links a{display:block;padding:12px;border-radius:7px;font-size:14px}.mobile-links a:hover{background:var(--peach);color:var(--orange)}
+    .hero{position:relative;overflow:hidden;background:radial-gradient(ellipse at 95% 25%,#fff0df 0,transparent 48%),var(--paper);border-bottom:1px solid var(--line)}.hero-content{display:grid;grid-template-columns:1.4fr 1fr;gap:72px;align-items:center;padding-block:84px 70px}.eyebrow{font:500 11px/1.7 var(--mono);letter-spacing:1.8px;text-transform:uppercase;color:var(--orange);display:flex;align-items:center;gap:9px}.eyebrow::before{content:'';width:20px;height:2px;background:var(--bright)}
+    .availability{display:inline-flex;align-items:center;gap:8px;background:white;border:1px solid var(--line);border-radius:100px;padding:7px 12px;font:500 10px/1.5 var(--mono);color:var(--orange);margin-bottom:25px}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--bright);box-shadow:0 0 0 4px #fff0e5}
+    h1{font-size:clamp(38px,5.2vw,64px);font-weight:800;letter-spacing:-3.1px;line-height:1.08;margin:17px 0 22px;max-width:660px}h1 span{color:var(--orange)}.hero-description{max-width:545px;font-size:15px;line-height:1.9;color:var(--muted)}.hero-description strong{color:var(--ink);font-weight:600}.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.hero-footnote{display:flex;align-items:center;gap:8px;margin-top:19px;font:400 10px/1.6 var(--mono);color:var(--muted)}.hero-footnote .icon{width:14px;height:14px;color:var(--orange)}
+    .identity{position:relative;display:flex;justify-content:center;align-items:center;min-height:400px}.orbit{position:absolute;width:390px;height:390px;border:1px dashed #edc5a5;border-radius:50%;transform:rotate(-12deg)}.orbit::before{content:'';position:absolute;top:51px;right:35px;width:12px;height:12px;border-radius:50%;background:var(--bright);box-shadow:0 0 0 7px #ffead9}.identity-card{position:relative;width:300px;background:white;border:1px solid #e4cbb7;border-radius:22px;padding:14px;box-shadow:12px 20px 0 #f9decb,0 20px 50px #73331112;transform:rotate(4deg)}.avatar-wrapper{height:268px;background:#fff0e1;border-radius:13px;overflow:hidden;display:grid;place-items:center}.avatar-wrapper img{width:100%;height:100%;object-fit:cover}.avatar-fallback{display:none}.identity-caption{padding:16px 6px 5px;display:flex;align-items:center;justify-content:space-between;gap:8px}.identity-caption strong{display:block;font-size:17px;letter-spacing:-.6px}.identity-caption small{display:block;font:400 9px/1.8 var(--mono);color:var(--muted)}.identity-caption .icon{width:27px;height:27px;color:var(--orange)}
+    .floating-label{position:absolute;left:-18px;bottom:39px;background:var(--orange);color:white;border:5px solid var(--paper);padding:11px 15px;border-radius:13px;transform:rotate(-6deg);font:500 11px/1.5 var(--mono);box-shadow:0 6px 20px #9a341218}.code-label{position:absolute;right:-5px;top:35px;padding:11px 14px;border:1px solid #e9c4a8;background:white;color:var(--orange);font:500 11px/1.5 var(--mono);border-radius:10px;transform:rotate(7deg)}
+    .hero-facts{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line);padding-block:25px 29px;gap:26px}.fact+.fact{border-left:1px solid var(--line);padding-left:30px}.fact-label{display:block;font:400 10px/1.6 var(--mono);text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}.fact-value{font-size:17px;font-weight:700;letter-spacing:-.4px;display:block}.fact-detail{font-size:11px;color:var(--muted);display:block;margin-top:3px}.time-chip{display:inline-block;background:#fff0e3;color:var(--deep);padding:2px 8px;border-radius:5px;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;cursor:help}
+    .section{padding-block:86px}.section-header{display:flex;align-items:flex-end;justify-content:space-between;gap:35px;margin-bottom:35px}.section-header h2{font-size:clamp(28px,3.2vw,38px);font-weight:800;letter-spacing:-1.5px;margin-top:10px}.section-header>p{max-width:310px;color:var(--muted);font-size:13px;line-height:1.8}
+    .projects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:23px}.project{border:1px solid var(--line);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;background:white;transition:transform .25s,box-shadow .25s}.project:hover{transform:translateY(-5px);box-shadow:0 15px 35px #693d1910}.project-art{aspect-ratio:16/10;position:relative;overflow:hidden;isolation:isolate;background:#fff0e1;display:grid;place-items:center}.project-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s;z-index:-1}.project:hover .project-art img{transform:scale(1.04)}.project-art::after{content:'';position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#30150570);z-index:-1}.project-index{position:absolute;top:14px;left:14px;background:#ffffffed;color:var(--orange);font:600 11px/1.5 var(--mono);padding:5px 8px;border-radius:6px}.project-genre{position:absolute;bottom:14px;left:16px;background:#ffffffed;color:var(--ink);border-radius:5px;padding:4px 8px;font:500 9px/1.5 var(--mono)}.art-fallback{display:none;flex-direction:column;gap:10px;align-items:center;text-align:center;padding:30px;color:var(--orange)}.art-fallback .icon{width:44px;height:44px}.art-fallback span{font:600 12px/1.5 var(--mono)}.image-missing img{display:none}.image-missing .art-fallback{display:flex}.image-missing .avatar-fallback{display:block;width:140px;height:175px}.image-missing::after{display:none}
+    .project-body{padding:25px;flex:1;display:flex;flex-direction:column}.project h3{font-size:19px;font-weight:800;letter-spacing:-.7px}.project-description{font-size:12px;line-height:1.9;color:var(--muted);margin-top:13px}.project-tags{display:flex;flex-wrap:wrap;gap:6px;margin-block:18px 25px}.tag{font:400 9px/1.6 var(--mono);padding:4px 7px;border-radius:5px;background:var(--paper);border:1px solid var(--line);color:var(--deep)}.project-link{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--line);color:var(--orange);font-size:12px;font-weight:700;margin-top:auto;min-height:44px}.project-link:hover{color:var(--deep)}.project-link .icon{width:16px;height:16px}
+    .about{background:var(--paper);border-block:1px solid var(--line)}.about-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:90px;align-items:start}.about h2{font-size:36px;letter-spacing:-1.5px;font-weight:800;margin:12px 0 22px}.about h2 span{color:var(--orange)}.about p{color:var(--muted);font-size:14px;line-height:1.9;margin-top:13px}.about strong{color:var(--ink);font-weight:600}.about-pill{display:inline-flex;align-items:center;gap:8px;margin-top:22px;padding:7px 11px;border:1px solid #e8cbb5;border-radius:7px;color:var(--orange);background:white;font:400 10px/1.7 var(--mono)}.about-pill .icon{width:16px;height:16px}
+    .journey{background:white;border:1px solid var(--line);border-radius:22px;padding:30px}.journey-heading{font:500 10px/1.5 var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:27px}.timeline{padding-left:26px;position:relative}.timeline::before{content:'';position:absolute;left:4px;top:8px;bottom:18px;width:1px;background:var(--line)}.milestone{position:relative;margin-top:26px}.milestone:first-child{margin-top:0}.milestone::before{content:'';position:absolute;left:-26px;top:6px;width:9px;height:9px;background:var(--bright);border-radius:50%;box-shadow:0 0 0 4px #fff3e8}.milestone-date{font:500 10px/1.6 var(--mono);color:var(--orange)}.milestone h3{font-size:15px;font-weight:700;margin-top:7px}.milestone p{font-size:12px;margin-top:6px;line-height:1.8}.milestone .time-chip{font-size:11px;margin-top:8px}
+    .skills-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.skill{border:1px solid var(--line);border-radius:16px;padding:26px;background:white;transition:border-color .2s}.skill:hover{border-color:#dca67b}.skill-icon{display:grid;place-items:center;width:39px;height:39px;border-radius:10px;background:var(--peach);color:var(--orange);margin-bottom:20px}.skill h3{font-size:15px;font-weight:700;letter-spacing:-.4px}.skill p{color:var(--muted);font-size:12px;line-height:1.9;margin-top:10px}code{font:400 .9em var(--mono);color:var(--deep);background:var(--peach);border-radius:3px;padding:2px 4px}
+    .work-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px;margin-top:42px;padding-top:32px;border-top:1px solid var(--line)}.work-item{display:flex;gap:13px;align-items:flex-start}.work-item>.icon{color:var(--orange);width:18px;height:18px;margin-top:3px}.work-item h3{font-size:12px;font-weight:700}.work-item p{font-size:11px;line-height:1.8;color:var(--muted);margin-top:6px}
+    .contact-wrap{padding-block:0 65px}.contact{background:var(--orange);color:white;border-radius:26px;position:relative;overflow:hidden;padding:55px 58px;display:grid;grid-template-columns:1.3fr 1fr;gap:50px;align-items:center}.contact::after{content:'';position:absolute;right:-100px;top:-140px;width:420px;height:420px;border:65px solid #ffffff08;border-radius:50%;pointer-events:none}.contact .eyebrow{color:#fff0e6}.contact .eyebrow::before{background:#ffca9b}.contact h2{font-size:35px;letter-spacing:-1.4px;font-weight:800;margin:13px 0 17px;max-width:450px}.contact p{font-size:13px;line-height:1.9;color:#fff1e7;max-width:440px}.contact-actions{position:relative;z-index:1;display:flex;flex-direction:column;gap:12px;align-items:flex-start;justify-self:end}.contact .button{background:white;color:var(--deep);border-color:white;min-width:235px}.contact .button:hover{background:#fff3e7}.contact .button-secondary{background:transparent;color:white;border-color:#ffffff60}.contact .button-secondary:hover{background:#ffffff12}.contact-hint{font:400 9px/1.6 var(--mono);color:#ffe4d0;max-width:235px}
+    .footer{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:26px;border-top:1px solid var(--line);color:var(--muted);font:400 10px/1.7 var(--mono)}.footer .brand{font:700 17px/1.5 var(--sans)}.footer-right{display:flex;align-items:center;gap:27px}.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,15px);z-index:60;background:var(--ink);color:white;padding:12px 20px;border-radius:10px;font-size:12px;max-width:calc(100% - 32px);width:max-content;box-shadow:0 6px 30px #0002;opacity:0;visibility:hidden;transition:opacity .2s,transform .2s}.toast.visible{opacity:1;visibility:visible;transform:translate(-50%,0)}
+    @media(min-width:1500px){.hero-content{padding-block:100px 85px}}
+    @media(max-width:1000px){.hero-content{gap:35px;grid-template-columns:1.2fr 1fr}.identity{min-height:350px}.identity-card{width:260px}.avatar-wrapper{height:230px}.orbit{width:320px;height:320px}.floating-label{left:-5px;bottom:15px}.code-label{right:-5px;top:18px}.about-grid{gap:45px}.project-body{padding:21px}.projects{gap:17px}}
+    @media(max-width:800px){.container{width:calc(100% - 40px)}.nav{height:72px;gap:16px}.nav-links,.nav-contact{display:none}.mobile-nav{display:block}h1{letter-spacing:-2px}.hero-content{padding-block:48px 43px;grid-template-columns:1fr;gap:35px}.hero-copy{max-width:600px}.hero h1{font-size:clamp(40px,7vw,58px)}.identity{min-height:330px;width:340px;max-width:100%;margin-inline:auto}.identity-card{width:260px}.avatar-wrapper{height:224px}.code-label{right:0;top:10px}.floating-label{left:0;bottom:10px}.hero-facts{gap:18px;grid-template-columns:1fr 1fr}.fact+.fact{padding-left:20px}.fact:last-child{grid-column:1/-1;border-left:none;padding-left:0;border-top:1px solid var(--line);padding-top:18px}.section{padding-block:60px}.section-header{align-items:flex-start;gap:20px;flex-direction:column}.section-header>p{max-width:480px}.projects{grid-template-columns:1fr;gap:24px}.project{display:grid;grid-template-columns:1fr 1.2fr}.project-art{height:100%;aspect-ratio:auto;min-height:245px}.project-description{font-size:13px}.about-grid{grid-template-columns:1fr;gap:30px}.about h2{max-width:470px}.skills-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.work-strip{gap:20px}.contact{grid-template-columns:1fr;padding:40px;gap:30px}.contact-actions{justify-self:start}.contact-wrap{padding-bottom:40px}.footer-right{gap:17px}}
+    @media(max-width:520px){.container{width:calc(100% - 36px)}.hero h1{font-size:43px;letter-spacing:-2.2px}.hero-description{font-size:14px}.hero-actions{gap:9px}.hero-actions .button{padding:12px 16px;font-size:12px}.hero-footnote{font-size:9px}.hero-facts{grid-template-columns:1fr;padding-block:23px}.fact+.fact{padding-left:0;border-left:none;border-top:1px solid var(--line);padding-top:18px}.fact:last-child{grid-column:auto}.fact-value{font-size:16px}.project{display:flex}.project-art{height:auto;aspect-ratio:16/10;min-height:0}.project-body{padding:24px}.skills-grid{grid-template-columns:1fr;gap:14px}.skill{padding:24px}.skill-icon{margin-bottom:15px}.skill p{font-size:13px}.about h2{font-size:32px}.journey{padding:25px}.work-strip{grid-template-columns:1fr;gap:22px}.work-item h3{font-size:13px}.work-item p{font-size:12px}.contact{padding:32px 25px;border-radius:20px;gap:25px}.contact h2{font-size:30px}.contact-actions{width:100%;align-items:stretch}.contact .button{min-width:0;width:100%}.footer{flex-wrap:wrap;justify-content:center;text-align:center;gap:12px}.footer-right{flex-wrap:wrap;justify-content:center;width:100%}.section-header h2{font-size:30px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}.button:hover,.project:hover,.project:hover .project-art img{transform:none}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 3h7v7M21 3l-11 11M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"/></symbol>
+    <symbol id="i-graduate" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5-10-5Zm4 2v6c3 3 9 3 12 0v-6m4-2v8"/></symbol>
+    <symbol id="i-data" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 10 5-10 5L2 8l10-5Zm-9 10 9 5 9-5m-18 5 9 5 9-5"/></symbol>
+    <symbol id="i-network" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="6" rx="1"/><rect x="1" y="16" width="8" height="6" rx="1"/><rect x="15" y="16" width="8" height="6" rx="1"/><path d="M12 8v4M5 16v-4h14v4"/></symbol>
+    <symbol id="i-screen" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></symbol>
+    <symbol id="i-speed" viewBox="0 0 24 24"><path d="M4 19a10 10 0 1 1 16 0M12 12l5-5M5 12H3m18 0h-2M12 4V2"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 2 9 4v6c0 6-9 10-9 10S3 18 3 12V6l9-4Zm-4 10 3 3 5-6"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11a9 9 0 0 1-9 9H3l2-5a9 9 0 1 1 16-4Z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H3V3h12v2"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-cone" viewBox="0 0 60 72"><path fill="#f97316" d="M27 4a3.3 3.3 0 0 1 6 0l20 56H7Z"/><path fill="#fff" d="m21 21-5 14h28l-5-14Zm-9 26-5 13h46l-5-13Z"/><rect fill="#c2410c" x="1" y="59" width="58" height="10" rx="4"/></symbol>
+  </svg>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="ConDev home"><svg class="brand-mark" aria-hidden="true"><use href="#i-cone"/></svg>Con<span>Dev.</span></a>
+      <div class="nav-links"><a href="#projects">Projects</a><a href="#about">About & education</a><a href="#skills">Expertise</a><a href="#contact">Contact</a></div>
+      <a class="button button-primary nav-contact" href="#contact">Let's talk <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      <details class="mobile-nav"><summary aria-label="Navigation menu"><svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg></summary><div class="mobile-links"><a href="#projects">Projects</a><a href="#about">About & education</a><a href="#skills">Expertise</a><a href="#contact">Contact</a></div></details>
     </nav>
-
-    <!-- Hero Section -->
-    <header id="about" class="pt-36 pb-20 px-6 max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-14 relative z-10">
-      <div class="flex-1 space-y-7 reveal">
-        
-        <!-- Live Availability Badge -->
-        <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-panel border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-          <span class="relative flex h-3 w-3">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-          </span>
-          <span class="text-emerald-400 font-mono text-xs tracking-wider uppercase font-bold">
-            Available for Hire & Commissions
-          </span>
-        </div>
-
-        <div class="inline-block ml-3 px-3 py-1 bg-roblox/10 rounded-full text-xs font-mono text-roblox border border-roblox/30">
-          LUAU STRICT TYPE ARCHITECT
-        </div>
-
-        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight">
-          Crafting Scalable Roblox Systems with 
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-roblox via-cyan-400 to-purple-500">
-            Strict Luau Typing
-          </span>.
-        </h1>
-
-        <p class="text-gray-300 text-lg max-w-2xl leading-relaxed border-l-4 border-roblox pl-4">
-          Roblox Systems Scripter & Backend Engineer. I specialize in 100% strict type safety (<code class="font-mono text-luauBlue font-semibold bg-darkCard px-1.5 py-0.5 rounded border border-darkBorder">--!strict</code>), modular game loops, ProfileStore data integrity, and high-performance network replication.
-        </p>
-
-        <!-- CTAs -->
-        <div class="flex flex-wrap gap-4 pt-2">
-          <a
-            href="#portfolio"
-            class="px-8 py-3.5 bg-roblox text-white font-bold rounded-xl hover:bg-robloxDark shadow-[0_4px_25px_rgba(0,162,255,0.3)] hover:scale-[1.02] transition duration-200 flex items-center gap-2"
-          >
-            <span>Explore Projects</span>
-            <i class="fas fa-arrow-right text-xs"></i>
-          </a>
-          <a
-            href="#contact"
-            class="px-8 py-3.5 glass-panel text-white font-bold rounded-xl hover:border-roblox/50 hover:bg-white/5 transition flex items-center gap-2"
-          >
-            <i class="fas fa-envelope text-roblox"></i>
-            <span>Get in Touch</span>
-          </a>
-          <button
-            onclick="copyDiscordTag()"
-            class="px-5 py-3.5 glass-panel text-gray-300 font-mono text-sm rounded-xl hover:text-white hover:border-indigo-500/50 transition flex items-center gap-2"
-          >
-            <i class="fab fa-discord text-indigo-400"></i>
-            <span>Discord: con.dev</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Hero Avatar Box -->
-      <div class="relative group reveal" style="transition-delay: 150ms">
-        <div class="absolute -inset-2 bg-gradient-to-r from-roblox via-cyan-400 to-purple-600 rounded-3xl blur-2xl opacity-40 group-hover:opacity-70 transition duration-700"></div>
-        <div class="relative glass-panel p-3 rounded-2xl border border-white/10 shadow-2xl">
-          <img
-            src="https://cdn.discordapp.com/attachments/1534778369625948307/1537085227069870100/noFilter.png?ex=6a7dc1ab&is=6a7c702b&hm=c44beffc24a1d19773bdbf4a1c0665be32f52386f5beee2bb46f562f18ad3084&"
-            alt="ConDev Roblox Avatar"
-            class="w-56 h-56 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-xl object-cover border border-darkBorder shadow-inner group-hover:scale-[1.02] transition duration-500 bg-darkCard"
-          />
-        </div>
-      </div>
-    </header>
-
-    <!-- Technical Skills & Strict Typing Focus -->
-    <section id="skills" class="py-24 max-w-7xl mx-auto px-6 border-t border-white/5">
-      
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 reveal">
-        <div>
-          <span class="text-roblox font-mono text-xs uppercase tracking-widest font-bold">Core Engineering</span>
-          <h2 class="text-3xl sm:text-4xl font-bold mt-2 text-white">Technical Capabilities</h2>
-        </div>
-        <p class="text-gray-400 text-sm max-w-md mt-4 md:mt-0">
-          Clean architecture, modular separation of concerns, and full type safety across every script.
-        </p>
-      </div>
-
-      <!-- Skills Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
-        <!-- Strict Typing Card Highlight -->
-        <div class="p-7 glass-panel rounded-2xl border border-luauPurple/40 card-glow reveal relative overflow-hidden group">
-          <div class="absolute -right-8 -top-8 w-28 h-28 bg-luauPurple/10 rounded-full blur-xl group-hover:bg-luauPurple/20 transition"></div>
-          <div class="w-12 h-12 rounded-xl bg-luauPurple/10 border border-luauPurple/30 flex items-center justify-center text-luauPurple text-xl mb-5">
-            <i class="fas fa-check-double"></i>
+  </header>
+  <main id="main">
+    <section class="hero" id="home" aria-labelledby="hero-heading">
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-copy">
+            <div class="availability"><span class="status-dot" aria-hidden="true"></span>Open for commissions & collaborations</div>
+            <p class="eyebrow">Roblox developer / ConDev</p>
+            <h1 id="hero-heading">Good games start with <span>solid systems.</span></h1>
+            <p class="hero-description">I build <strong>Roblox gameplay and backend systems</strong> with Luau: modular mechanics, reliable player data, and code that's easier to maintain. I'm also a <strong>Software Engineering undergraduate</strong>, bringing what I learn into what I build.</p>
+            <div class="hero-actions"><a class="button button-primary" href="#projects">Explore my work <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a><button class="button" type="button" data-copy-discord><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg>Discord: con.dev</button></div>
+            <p class="hero-footnote"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg>Luau · Roblox Studio · ProfileStore · Rojo</p>
           </div>
-          <span class="px-2.5 py-0.5 bg-luauPurple/10 text-luauPurple text-[11px] font-mono rounded border border-luauPurple/30 uppercase font-bold">
-            Strict Type Safety
-          </span>
-          <h3 class="text-xl font-bold text-white mt-3 mb-2">100% Typed Luau Codebases</h3>
-          <p class="text-sm text-gray-300 leading-relaxed">
-            I type every system using Luau's strict mode (<code class="font-mono text-luauPurple">--!strict</code>). Explicit type aliases, exported interfaces, and runtime checks eliminate nil errors and streamline maintenance.
-          </p>
+          <div class="identity">
+            <div class="orbit" aria-hidden="true"></div>
+            <div class="identity-card"><div class="avatar-wrapper"><img src="https://avatars.githubusercontent.com/u/209188354?v=4" alt="ConDev's avatar" width="272" height="268" fetchpriority="high"><svg class="avatar-fallback" aria-hidden="true"><use href="#i-cone"/></svg></div><div class="identity-caption"><div><strong>ConDev</strong><small>Building. Learning. Shipping.</small></div><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg></div></div>
+            <div class="code-label" aria-hidden="true">--!strict</div><div class="floating-label"><svg width="13" height="16" aria-hidden="true" style="vertical-align:middle;margin-right:5px"><use href="#i-cone"/></svg>Code with character.</div>
+          </div>
         </div>
-
-        <!-- DataStore & ProfileStore Card -->
-        <div class="p-7 glass-panel rounded-2xl border border-white/5 card-glow reveal group" style="transition-delay: 100ms">
-          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl mb-5">
-            <i class="fas fa-database"></i>
-          </div>
-          <span class="px-2.5 py-0.5 bg-emerald-500/10 text-emerald-400 text-[11px] font-mono rounded border border-emerald-500/30 uppercase font-bold">
-            ProfileStore & Data
-          </span>
-          <h3 class="text-xl font-bold text-white mt-3 mb-2">Data Protection & Locking</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
-            Bulletproof data persistence using ProfileStore / DataStore2. Session locking prevents dupes, session stealing, and data wipes under any server crash scenario.
-          </p>
-        </div>
-
-        <!-- Game Loops & Architecture -->
-        <div class="p-7 glass-panel rounded-2xl border border-white/5 card-glow reveal group" style="transition-delay: 200ms">
-          <div class="w-12 h-12 rounded-xl bg-roblox/10 border border-roblox/30 flex items-center justify-center text-roblox text-xl mb-5">
-            <i class="fas fa-cubes"></i>
-          </div>
-          <span class="px-2.5 py-0.5 bg-roblox/10 text-roblox text-[11px] font-mono rounded border border-roblox/30 uppercase font-bold">
-            Backend Architecture
-          </span>
-          <h3 class="text-xl font-bold text-white mt-3 mb-2">Modular Game Loops</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
-            State machines, round managers, matchmaking lobbies, teleport pipelines, and clean framework organization (Knit / custom controller pattern).
-          </p>
-        </div>
-
-        <!-- Networking & Compression -->
-        <div class="p-7 glass-panel rounded-2xl border border-white/5 card-glow reveal group" style="transition-delay: 300ms">
-          <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl mb-5">
-            <i class="fas fa-network-wired"></i>
-          </div>
-          <span class="px-2.5 py-0.5 bg-cyan-500/10 text-cyan-400 text-[11px] font-mono rounded border border-cyan-500/30 uppercase font-bold">
-            Network Protocols
-          </span>
-          <h3 class="text-xl font-bold text-white mt-3 mb-2">Optimized Replication</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
-            Server-side event rate-limiting, custom buffer packing, delta compression, and strict validation against exploiters.
-          </p>
-        </div>
-
-        <!-- UI & State Management -->
-        <div class="p-7 glass-panel rounded-2xl border border-white/5 card-glow reveal group" style="transition-delay: 400ms">
-          <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 text-xl mb-5">
-            <i class="fas fa-desktop"></i>
-          </div>
-          <span class="px-2.5 py-0.5 bg-pink-500/10 text-pink-400 text-[11px] font-mono rounded border border-pink-500/30 uppercase font-bold">
-            UI & Animation
-          </span>
-          <h3 class="text-xl font-bold text-white mt-3 mb-2">UI Scripting & Fusion</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
-            Dynamic UI animation pipelines with TweenService, procedural camera controls, reactive state management, and fluid responsive design.
-          </p>
-        </div>
-
-        <!-- Optimization & Microprofiler -->
-        <div class="p-7 glass-panel rounded-2xl border border-white/5 card-glow reveal group" style="transition-delay: 500ms">
-          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl mb-5">
-            <i class="fas fa-tachometer-alt"></i>
-          </div>
-          <span class="px-2.5 py-0.5 bg-amber-500/10 text-amber-400 text-[11px] font-mono rounded border border-amber-500/30 uppercase font-bold">
-            Performance Audit
-          </span>
-          <h3 class="text-xl font-bold text-white mt-3 mb-2">Memory & FPS Tuning</h3>
-          <p class="text-sm text-gray-400 leading-relaxed">
-            Microprofiler analysis, connection cleanup (`Janitor` / `Maid` patterns), spatial hash grids, and zero memory leaks.
-          </p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Featured Projects Showcase -->
-    <section id="portfolio" class="py-24 bg-darkCard/30 border-y border-white/5">
-      <div class="max-w-7xl mx-auto px-6">
-        
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 reveal">
-          <div>
-            <span class="text-roblox font-mono text-xs uppercase tracking-widest font-bold">Selected Works</span>
-            <h2 class="text-3xl sm:text-4xl font-bold mt-2 text-white">Featured Roblox Projects</h2>
-          </div>
-          <p class="text-gray-400 text-sm max-w-md mt-4 md:mt-0">
-            Real games engineered for scalability, high player retention, and smooth performance.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          <!-- Project 1: Anime Awakening -->
-          <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 card-glow reveal flex flex-col group">
-            <div class="h-56 bg-darkCard relative overflow-hidden">
-              <div class="absolute top-4 left-4 z-20 flex gap-2">
-                <span class="px-3 py-1 bg-emerald-500/90 text-white font-mono text-xs font-bold rounded-full shadow-lg backdrop-blur-md">
-                  Active Dev
-                </span>
-                <span class="px-3 py-1 bg-purple-600/90 text-white font-mono text-xs font-bold rounded-full shadow-lg backdrop-blur-md">
-                  Simulator
-                </span>
-              </div>
-              <img
-                src="https://tr.rbxcdn.com/180DAY-0583735004b3531ee25bc93309ebbfc7/768/432/Image/Webp/noFilter"
-                alt="Anime Awakening Roblox Game"
-                class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
-              />
-            </div>
-
-            <div class="p-7 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 class="text-2xl font-bold text-white group-hover:text-roblox transition duration-300 mb-2">
-                  Anime Awakening
-                </h3>
-                <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                  Complete Anime Simulator developed by Rift Abyss studio. Systems include custom combat mechanics, quest engine, gacha hatching, and ProfileStore save data.
-                </p>
-                <div class="flex flex-wrap gap-2 mb-6">
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">ProfileStore</span>
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">Combat Systems</span>
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">Team Create</span>
-                </div>
-              </div>
-
-              <a
-                href="https://www.roblox.com/games/71927761891687/Anime-Awakening#!/game-instances"
-                target="_blank"
-                class="w-full py-3 bg-white hover:bg-roblox hover:text-white text-darkBg font-bold rounded-xl text-center transition duration-200 flex items-center justify-center gap-2 shadow-lg"
-              >
-                <i class="fas fa-play text-xs"></i>
-                <span>Play Anime Awakening</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Project 2: Tower of ASMR -->
-          <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 card-glow reveal flex flex-col group" style="transition-delay: 150ms">
-            <div class="h-56 bg-darkCard relative overflow-hidden">
-              <div class="absolute top-4 left-4 z-20 flex gap-2">
-                <span class="px-3 py-1 bg-roblox/90 text-white font-mono text-xs font-bold rounded-full shadow-lg backdrop-blur-md">
-                  Featured Title
-                </span>
-                <span class="px-3 py-1 bg-pink-600/90 text-white font-mono text-xs font-bold rounded-full shadow-lg backdrop-blur-md">
-                  Physics Obby
-                </span>
-              </div>
-              <img
-                src="https://tr.rbxcdn.com/180DAY-d67303651defd1ed87dcc4d87502d419/768/432/Image/Jpeg/noFilter"
-                alt="Tower of ASMR Roblox Game"
-                class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
-              />
-            </div>
-
-            <div class="p-7 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 class="text-2xl font-bold text-white group-hover:text-roblox transition duration-300 mb-2">
-                  Tower of ASMR
-                </h3>
-                <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                  Satisfying obstacle game with squishy, reactive block physics, custom ASMR sound engine, gear mutations, and multi-platform optimization.
-                </p>
-                <div class="flex flex-wrap gap-2 mb-6">
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">Custom Physics</span>
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">ASMR Sound Sync</span>
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">Multiplatform</span>
-                </div>
-              </div>
-
-              <a
-                href="https://www.roblox.com/games/108818337938536/Tower-of-ASMR"
-                target="_blank"
-                class="w-full py-3 bg-white hover:bg-roblox hover:text-white text-darkBg font-bold rounded-xl text-center transition duration-200 flex items-center justify-center gap-2 shadow-lg"
-              >
-                <i class="fas fa-play text-xs"></i>
-                <span>Play Tower of ASMR</span>
-              </a>
-            </div>
-          </div>
-
-          <!-- Project 3: Brainrots Knockout -->
-          <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 card-glow reveal flex flex-col group" style="transition-delay: 300ms">
-            <div class="h-56 bg-darkCard relative overflow-hidden">
-              <div class="absolute top-4 left-4 z-20 flex gap-2">
-                <span class="px-3 py-1 bg-amber-500/90 text-white font-mono text-xs font-bold rounded-full shadow-lg backdrop-blur-md">
-                  Action Release
-                </span>
-                <span class="px-3 py-1 bg-red-600/90 text-white font-mono text-xs font-bold rounded-full shadow-lg backdrop-blur-md">
-                  Knockout Arena
-                </span>
-              </div>
-              <img
-                src="https://tr.rbxcdn.com/180DAY-6b1da9fea453daa3184307da8e2ab262/768/432/Image/Jpeg/noFilter"
-                alt="Brainrots Knockout Roblox Game"
-                class="w-full h-full object-cover group-hover:scale-105 transition duration-700"
-              />
-            </div>
-
-            <div class="p-7 flex-1 flex flex-col justify-between">
-              <div>
-                <h3 class="text-2xl font-bold text-white group-hover:text-roblox transition duration-300 mb-2">
-                  Brainrots Knockout!
-                </h3>
-                <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                  Fast-paced ragdoll knockout arena with 100+ unlockable character abilities, physics shove collision logic, and reward redemption systems.
-                </p>
-                <div class="flex flex-wrap gap-2 mb-6">
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">Ragdoll Physics</span>
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">Knockback Engine</span>
-                  <span class="text-xs font-mono bg-roblox/10 text-roblox px-2.5 py-1 rounded border border-roblox/20">Reward Systems</span>
-                </div>
-              </div>
-
-              <a
-                href="https://www.roblox.com/games/109246408716529/Brainrots-Knockout"
-                target="_blank"
-                class="w-full py-3 bg-white hover:bg-roblox hover:text-white text-darkBg font-bold rounded-xl text-center transition duration-200 flex items-center justify-center gap-2 shadow-lg"
-              >
-                <i class="fas fa-play text-xs"></i>
-                <span>Play Brainrots Knockout</span>
-              </a>
-            </div>
-          </div>
-
+        <div class="hero-facts">
+          <div class="fact"><span class="fact-label">Time spent coding</span><span class="fact-value"><time class="time-chip" data-coding-duration datetime="2025-01-01T00:00:00-03:00" title="Coding since January 2025. Updates automatically.">Since January 2025</time></span><span class="fact-detail">Since Jan 2025 · updates automatically</span></div>
+          <div class="fact"><span class="fact-label">Currently studying</span><span class="fact-value">Software Engineering</span><span class="fact-detail">Undergraduate · degree in progress</span></div>
+          <div class="fact"><span class="fact-label">Main focus</span><span class="fact-value">Roblox & Luau</span><span class="fact-detail">Gameplay · backend · architecture</span></div>
         </div>
       </div>
     </section>
-
-    <!-- Why Work With Me / Value Proposition -->
-    <section class="py-20 bg-darkCard/20 border-t border-white/5">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          <div class="glass-panel p-8 rounded-2xl border border-white/5 reveal">
-            <div class="text-roblox text-3xl mb-4"><i class="fas fa-bolt"></i></div>
-            <h3 class="text-xl font-bold text-white mb-2">Fast Turnaround</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              Daily updates and transparent communication on Discord. Clean git/Rojo modular structure for fast delivery.
-            </p>
-          </div>
-
-          <div class="glass-panel p-8 rounded-2xl border border-white/5 reveal" style="transition-delay: 150ms">
-            <div class="text-emerald-400 text-3xl mb-4"><i class="fas fa-shield-virus"></i></div>
-            <h3 class="text-xl font-bold text-white mb-2">Exploit Prevention</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              Never trust the client. Every RemoteEvent is type-validated and sanity-checked on the server.
-            </p>
-          </div>
-
-          <div class="glass-panel p-8 rounded-2xl border border-white/5 reveal" style="transition-delay: 300ms">
-            <div class="text-purple-400 text-3xl mb-4"><i class="fas fa-code-branch"></i></div>
-            <h3 class="text-xl font-bold text-white mb-2">Maintainable Code</h3>
-            <p class="text-gray-400 text-sm leading-relaxed">
-              Self-documenting strict Luau types allow any future developers to quickly understand and expand systems.
-            </p>
-          </div>
-
-        </div>
+    <section class="section container" id="projects" aria-labelledby="projects-heading">
+      <div class="section-header"><div><p class="eyebrow">01 / Selected work</p><h2 id="projects-heading">From code to playable worlds.</h2></div><p>A selection of Roblox projects, with the systems and technologies behind them.</p></div>
+      <div class="projects">
+        <article class="project">
+          <div class="project-art"><img src="https://tr.rbxcdn.com/180DAY-0583735004b3531ee25bc93309ebbfc7/768/432/Image/Webp/noFilter" alt="Anime Awakening gameplay thumbnail" width="768" height="432" loading="lazy" decoding="async"><div class="art-fallback" aria-hidden="true"><svg class="icon"><use href="#i-layers"/></svg><span>Anime Awakening</span></div><span class="project-index">01</span><span class="project-genre">Anime simulator</span></div>
+          <div class="project-body"><h3>Anime Awakening</h3><p class="project-description">An anime simulator from Rift Abyss studio, featuring combat mechanics, quests, gacha hatching, and persistent player progress.</p><div class="project-tags"><span class="tag">ProfileStore</span><span class="tag">Combat systems</span><span class="tag">Team Create</span></div><a class="project-link" href="https://www.roblox.com/games/71927761891687/Anime-Awakening" target="_blank" rel="noopener noreferrer">View on Roblox <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a></div>
+        </article>
+        <article class="project">
+          <div class="project-art"><img src="https://tr.rbxcdn.com/180DAY-d67303651defd1ed87dcc4d87502d419/768/432/Image/Jpeg/noFilter" alt="Tower of ASMR gameplay thumbnail" width="768" height="432" loading="lazy" decoding="async"><div class="art-fallback" aria-hidden="true"><svg class="icon"><use href="#i-layers"/></svg><span>Tower of ASMR</span></div><span class="project-index">02</span><span class="project-genre">Physics obby</span></div>
+          <div class="project-body"><h3>Tower of ASMR</h3><p class="project-description">An obstacle game built around reactive block physics, synchronized ASMR audio, gear mutations, and play across different devices.</p><div class="project-tags"><span class="tag">Custom physics</span><span class="tag">Sound sync</span><span class="tag">Multiplatform</span></div><a class="project-link" href="https://www.roblox.com/games/108818337938536/Tower-of-ASMR" target="_blank" rel="noopener noreferrer">View on Roblox <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a></div>
+        </article>
+        <article class="project">
+          <div class="project-art"><img src="https://tr.rbxcdn.com/180DAY-6b1da9fea453daa3184307da8e2ab262/768/432/Image/Jpeg/noFilter" alt="Brainrots Knockout gameplay thumbnail" width="768" height="432" loading="lazy" decoding="async"><div class="art-fallback" aria-hidden="true"><svg class="icon"><use href="#i-layers"/></svg><span>Brainrots Knockout!</span></div><span class="project-index">03</span><span class="project-genre">Knockout arena</span></div>
+          <div class="project-body"><h3>Brainrots Knockout!</h3><p class="project-description">A ragdoll knockout arena with unlockable character abilities, physics-based shoves, knockback mechanics, and reward redemption.</p><div class="project-tags"><span class="tag">Ragdoll physics</span><span class="tag">Knockback</span><span class="tag">Reward systems</span></div><a class="project-link" href="https://www.roblox.com/games/109246408716529/Brainrots-Knockout" target="_blank" rel="noopener noreferrer">View on Roblox <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a></div>
+        </article>
       </div>
     </section>
-
-    <!-- Contact & Call to Action -->
-    <section id="contact" class="py-24 max-w-4xl mx-auto px-6 text-center relative z-10 reveal">
-      
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-roblox/10 text-roblox font-mono text-xs border border-roblox/30 mb-6">
-        <i class="fas fa-paper-plane"></i>
-        <span>GET IN TOUCH</span>
+    <section class="section about" id="about" aria-labelledby="about-heading">
+      <div class="container about-grid">
+        <div><p class="eyebrow">02 / The person behind the code</p><h2 id="about-heading">Learning the theory.<br><span>Building the practice.</span></h2><p>I'm ConDev, a Roblox developer who started programming in <strong>January 2025</strong>. I enjoy turning game ideas into organized systems that can grow alongside a project.</p><p>I've been pursuing a <strong>Software Engineering degree for around a year</strong>. My studies complement hands-on development, helping me approach architecture, problem solving, and code maintenance with more intention.</p><p>My focus is practical: typed Luau, clear module boundaries, server-side validation, and game systems that other developers can understand and extend.</p><span class="about-pill"><svg class="icon" aria-hidden="true"><use href="#i-graduate"/></svg>Software Engineering · undergraduate</span></div>
+        <div class="journey"><div class="journey-heading">A work in progress, in the best way.</div><div class="timeline">
+          <div class="milestone"><span class="milestone-date">JANUARY 2025</span><h3>Started programming</h3><p>The beginning of my coding journey.</p><time class="time-chip" data-coding-duration datetime="2025-01-01T00:00:00-03:00" title="Coding since January 2025. Updates automatically.">Since January 2025</time></div>
+          <div class="milestone"><span class="milestone-date">IN PROGRESS</span><h3>Software Engineering degree</h3><p>Around one year of undergraduate studies, alongside practical development.</p></div>
+          <div class="milestone"><span class="milestone-date">CURRENT FOCUS</span><h3>Roblox gameplay & backend</h3><p>Developing game mechanics, player data systems, and modular Luau architecture.</p></div>
+        </div></div>
       </div>
-
-      <h2 class="text-4xl sm:text-5xl font-extrabold text-white mb-6">Ready to bring your Roblox vision to life?</h2>
-      
-      <p class="text-gray-300 text-lg max-w-xl mx-auto mb-10 leading-relaxed">
-        I am currently available for short-term system commissions and long-term full game development.
-      </p>
-
-      <div class="flex flex-col sm:flex-row justify-center items-center gap-5">
-        <button
-          onclick="copyDiscordTag()"
-          class="w-full sm:w-auto px-8 py-4 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-xl font-bold text-lg transition duration-200 shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-3 hover:scale-105"
-        >
-          <i class="fab fa-discord text-2xl"></i>
-          <span>Discord: con.dev</span>
-          <i class="fas fa-copy text-xs opacity-75 ml-1"></i>
-        </button>
-
-        <a
-          href="https://www.roblox.com/users/154671771/profile"
-          target="_blank"
-          class="w-full sm:w-auto px-8 py-4 glass-panel text-white hover:border-roblox/50 rounded-xl font-bold text-lg transition duration-200 flex items-center justify-center gap-3"
-        >
-          <i class="fas fa-user-circle text-roblox text-xl"></i>
-          <span>Roblox Profile</span>
-        </a>
-      </div>
-
-      <footer class="mt-28 pt-8 border-t border-white/5 text-gray-500 text-xs font-mono flex flex-col sm:flex-row justify-between items-center gap-4">
-        <p>&copy; 2026 ConDev. Built with Strict Luau & Modern Web Standards.</p>
-        <div class="flex gap-6">
-          <a href="#about" class="hover:text-white transition">Back to top ↑</a>
-        </div>
-      </footer>
     </section>
-
-    <!-- Interactive Scripts -->
-    <script>
-      // 1. Intersection Observer for Scroll Animations
-      document.addEventListener("DOMContentLoaded", () => {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("active");
-              }
-            });
-          },
-          { threshold: 0.12 }
-        );
-
-        document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-        initCanvasParticles();
+    <section class="section container" id="skills" aria-labelledby="skills-heading">
+      <div class="section-header"><div><p class="eyebrow">03 / What I work with</p><h2 id="skills-heading">The tools behind the experience.</h2></div><p>Technical skills applied to the everyday problems of building and maintaining Roblox games.</p></div>
+      <div class="skills-grid">
+        <article class="skill"><div class="skill-icon"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg></div><h3>Typed Luau</h3><p>Strict mode with <code>--!strict</code>, explicit type aliases, and shared interfaces to catch mistakes earlier and make modules easier to understand.</p></article>
+        <article class="skill"><div class="skill-icon"><svg class="icon" aria-hidden="true"><use href="#i-data"/></svg></div><h3>Player data & persistence</h3><p>ProfileStore and DataStore workflows, session locking, and structured player profiles, with attention to save reliability and data consistency.</p></article>
+        <article class="skill"><div class="skill-icon"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg></div><h3>Game architecture</h3><p>State machines, round managers, lobbies, and modular controllers that separate responsibilities and support new features.</p></article>
+        <article class="skill"><div class="skill-icon"><svg class="icon" aria-hidden="true"><use href="#i-network"/></svg></div><h3>Networking & validation</h3><p>Server-side validation, rate limiting, buffer packing, and delta updates to manage replication and reduce unnecessary traffic.</p></article>
+        <article class="skill"><div class="skill-icon"><svg class="icon" aria-hidden="true"><use href="#i-screen"/></svg></div><h3>UI scripting & animation</h3><p>Reactive UI with Fusion, TweenService animations, camera controls, and interfaces that adapt to different screens.</p></article>
+        <article class="skill"><div class="skill-icon"><svg class="icon" aria-hidden="true"><use href="#i-speed"/></svg></div><h3>Performance & cleanup</h3><p>Microprofiler analysis, connection cleanup with Janitor or Maid patterns, and attention to memory usage and frame times.</p></article>
+      </div>
+      <div class="work-strip">
+        <div class="work-item"><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg><div><h3>Clear communication</h3><p>Scope, progress, and handoff discussed through Discord.</p></div></div>
+        <div class="work-item"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg><div><h3>Server-first decisions</h3><p>Validate player requests before changing game state.</p></div></div>
+        <div class="work-item"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg><div><h3>Code built to continue</h3><p>Modular structure and types for easier future changes.</p></div></div>
+      </div>
+    </section>
+    <section class="container contact-wrap" id="contact" aria-labelledby="contact-heading">
+      <div class="contact"><div><p class="eyebrow">04 / Let's build something</p><h2 id="contact-heading">Have a Roblox project in mind?</h2><p>Let's talk about what you need: a new system, gameplay mechanics, or help with a larger game. Send me the idea and the scope on Discord.</p></div><div class="contact-actions"><button type="button" class="button" data-copy-discord><svg class="icon" aria-hidden="true"><use href="#i-chat"/></svg>Discord: con.dev <svg class="icon" aria-hidden="true"><use href="#i-copy"/></svg></button><a class="button button-secondary" href="https://www.roblox.com/users/154671771/profile" target="_blank" rel="noopener noreferrer">My Roblox profile <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a><span class="contact-hint">Click to copy my Discord username.</span></div></div>
+    </section>
+  </main>
+  <footer class="footer container"><a class="brand" href="#home">Con<span>Dev.</span></a><div class="footer-right"><p>&copy; <span id="current-year">2026</span> ConDev. Made with care & a little orange.</p><a href="#home">Back to top ↑</a></div></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <script>
+    // Month-only start date: January 1 is a reference, not a claimed exact start day.
+    const CODING_STARTED_AT = '2025-01-01T00:00:00-03:00';
+    const CODING_TIME_ZONE = 'America/Sao_Paulo';
+    const calendarFormatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: CODING_TIME_ZONE, year: 'numeric', month: 'numeric', day: 'numeric'
+    });
+    function getCalendarDate(date) {
+      const parts = Object.fromEntries(calendarFormatter.formatToParts(date).map(part => [part.type, part.value]));
+      return new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
+    }
+    function codingDuration(now = new Date()) {
+      const start = getCalendarDate(new Date(CODING_STARTED_AT));
+      const today = getCalendarDate(now);
+      if (today < start) return 'Starting January 2025';
+      // Complete calendar months, without approximating months as 30 days.
+      let totalMonths = (today.getUTCFullYear() - start.getUTCFullYear()) * 12 + today.getUTCMonth() - start.getUTCMonth();
+      if (today.getUTCDate() < start.getUTCDate()) totalMonths -= 1;
+      const years = Math.floor(totalMonths / 12), months = totalMonths % 12;
+      const units = [];
+      if (years) units.push(`${years} year${years === 1 ? '' : 's'}`);
+      if (months) units.push(`${months} month${months === 1 ? '' : 's'}`);
+      if (!units.length) {
+        const days = Math.round((today - start) / 86400000);
+        return days ? `${days} day${days === 1 ? '' : 's'}` : 'Started today';
+      }
+      return units.join(', ');
+    }
+    function updateCodingDuration() {
+      const now = new Date(), text = codingDuration(now);
+      document.querySelectorAll('[data-coding-duration]').forEach(element => {
+        if (element.textContent !== text) element.textContent = text;
+        element.title = `Coding since January 2025 · ${text} · updates automatically`;
       });
-
-      // 2. Discord Copy Function with Toast Notification
-      function copyDiscordTag() {
-        const handle = "con.dev";
-        navigator.clipboard.writeText(handle).then(() => {
-          showToast("Discord tag 'con.dev' copied to clipboard!");
-        }).catch(err => {
-          showToast("Copied Discord: con.dev");
-        });
+      document.getElementById('current-year').textContent = getCalendarDate(now).getUTCFullYear();
+    }
+    updateCodingDuration();
+    setInterval(() => { if (!document.hidden) updateCodingDuration(); }, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) updateCodingDuration(); });
+    let toastTimer;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add('visible');
+      toastTimer = setTimeout(() => toast.classList.remove('visible'), 5000);
+    }
+    async function copyDiscordTag() {
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText('con.dev');
+        showToast('Discord username copied: con.dev');
+      } catch {
+        // Real fallback for file previews and browsers without the Clipboard API.
+        const field = document.createElement('textarea');
+        field.value = 'con.dev';
+        field.setAttribute('readonly', '');
+        field.style.cssText = 'position:fixed;left:-9999px;top:0';
+        const previousFocus = document.activeElement;
+        document.body.append(field);
+        field.select();
+        let copied = false;
+        try { copied = document.execCommand('copy'); } catch { /* Offer manual copying below. */ }
+        field.remove();
+        previousFocus?.focus({ preventScroll: true });
+        showToast(copied ? 'Discord username copied: con.dev' : 'Copy manually: con.dev');
       }
-
-      function showToast(message) {
-        const toast = document.getElementById("toast");
-        const msgSpan = document.getElementById("toastMsg");
-        msgSpan.innerText = message;
-        toast.classList.add("show");
-        setTimeout(() => {
-          toast.classList.remove("show");
-        }, 3000);
-      }
-
-      // 3. Subtle Interactive Particle Canvas
-      function initCanvasParticles() {
-        const canvas = document.getElementById("particleCanvas");
-        if (!canvas) return;
-        const ctx = canvas.getContext("2d");
-
-        let width = (canvas.width = window.innerWidth);
-        let height = (canvas.height = window.innerHeight);
-
-        window.addEventListener("resize", () => {
-          width = canvas.width = window.innerWidth;
-          height = canvas.height = window.innerHeight;
-        });
-
-        const particles = Array.from({ length: 40 }, () => ({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          radius: Math.random() * 1.8 + 0.5,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
-          alpha: Math.random() * 0.5 + 0.2,
-        }));
-
-        function render() {
-          ctx.clearRect(0, 0, width, height);
-
-          particles.forEach((p) => {
-            p.x += p.vx;
-            p.y += p.vy;
-
-            if (p.x < 0) p.x = width;
-            if (p.x > width) p.x = 0;
-            if (p.y < 0) p.y = height;
-            if (p.y > height) p.y = 0;
-
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(0, 162, 255, ${p.alpha})`;
-            ctx.fill();
-          });
-
-          requestAnimationFrame(render);
-        }
-
-        render();
-      }
-    </script>
-  </body>
+    }
+    document.querySelectorAll('[data-copy-discord]').forEach(button => button.addEventListener('click', copyDiscordTag));
+    document.querySelectorAll('.mobile-links a').forEach(link => link.addEventListener('click', () => {
+      document.querySelector('.mobile-nav').open = false;
+    }));
+    document.querySelectorAll('.project-art img, .avatar-wrapper img').forEach(img => {
+      const handleError = () => img.parentElement.classList.add('image-missing');
+      img.addEventListener('error', handleError);
+      if (img.complete && !img.naturalWidth) handleError();
+    });
+  </script>
+</body>
 </html>
