@@ -94,8 +94,8 @@
       <div class="section-header"><div><p class="eyebrow">01 / Selected work</p><h2 id="projects-heading">From code to playable worlds.</h2></div><p>A selection of Roblox projects, with the systems and technologies behind them.</p></div>
       <div class="projects">
         <article class="project">
-          <div class="project-art"><img src="https://tr.rbxcdn.com/180DAY-0583735004b3531ee25bc93309ebbfc7/768/432/Image/Webp/noFilter" alt="Anime Awakening gameplay thumbnail" width="768" height="432" loading="lazy" decoding="async"><div class="art-fallback" aria-hidden="true"><svg class="icon"><use href="#i-layers"/></svg><span>Anime Awakening</span></div><span class="project-index">01</span><span class="project-genre">Anime simulator</span></div>
-          <div class="project-body"><h3>Anime Awakening</h3><p class="project-description">An anime simulator from Rift Abyss studio, featuring combat mechanics, quests, gacha hatching, and persistent player progress.</p><div class="project-tags"><span class="tag">ProfileStore</span><span class="tag">Combat systems</span><span class="tag">Team Create</span></div><a class="project-link" href="https://www.roblox.com/games/71927761891687/Anime-Awakening" target="_blank" rel="noopener noreferrer">View on Roblox <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a></div>
+          <div class="project-art"><img src="https://tr.rbxcdn.com/180DAY-3b03475be0c34109ab05b43f87180bf7/768/432/Image/Png/noFilter" alt="Copy Me gameplay thumbnail" width="768" height="432" loading="lazy" decoding="async"><div class="art-fallback" aria-hidden="true"><svg class="icon"><use href="#i-layers"/></svg><span>Copy Me</span></div><span class="project-index">01</span><span class="project-genre">Hide and seek</span></div>
+          <div class="project-body"><h3>Copy Me</h3><p class="project-description">A round-based hide-and-seek game where hiders sculpt and paint their own body with an in-game mesh editor to blend into procedurally generated maps, while seekers hunt them down.</p><div class="project-tags"><span class="tag">EditableMesh editor</span><span class="tag">Procedural maps</span><span class="tag">Server validation</span></div><a class="project-link" href="https://www.roblox.com/games/86108797076369/Copy-Me" target="_blank" rel="noopener noreferrer">View on Roblox <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg></a></div>
         </article>
         <article class="project">
           <div class="project-art"><img src="https://tr.rbxcdn.com/180DAY-d67303651defd1ed87dcc4d87502d419/768/432/Image/Jpeg/noFilter" alt="Tower of ASMR gameplay thumbnail" width="768" height="432" loading="lazy" decoding="async"><div class="art-fallback" aria-hidden="true"><svg class="icon"><use href="#i-layers"/></svg><span>Tower of ASMR</span></div><span class="project-index">02</span><span class="project-genre">Physics obby</span></div>
@@ -140,7 +140,6 @@
   <footer class="footer container"><a class="brand" href="#home">Con<span>Dev.</span></a><div class="footer-right"><p>&copy; <span id="current-year">2026</span> ConDev. Made with care & a little orange.</p><a href="#home">Back to top ↑</a></div></footer>
   <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   <script>
-    // Month-only start date: January 1 is a reference, not a claimed exact start day.
     const CODING_STARTED_AT = '2025-01-01T00:00:00-03:00';
     const CODING_TIME_ZONE = 'America/Sao_Paulo';
     const calendarFormatter = new Intl.DateTimeFormat('en-US', {
@@ -154,7 +153,6 @@
       const start = getCalendarDate(new Date(CODING_STARTED_AT));
       const today = getCalendarDate(now);
       if (today < start) return 'Starting January 2025';
-      // Complete calendar months, without approximating months as 30 days.
       let totalMonths = (today.getUTCFullYear() - start.getUTCFullYear()) * 12 + today.getUTCMonth() - start.getUTCMonth();
       if (today.getUTCDate() < start.getUTCDate()) totalMonths -= 1;
       const years = Math.floor(totalMonths / 12), months = totalMonths % 12;
@@ -192,7 +190,6 @@
         await navigator.clipboard.writeText('con.dev');
         showToast('Discord username copied: con.dev');
       } catch {
-        // Real fallback for file previews and browsers without the Clipboard API.
         const field = document.createElement('textarea');
         field.value = 'con.dev';
         field.setAttribute('readonly', '');
@@ -201,7 +198,7 @@
         document.body.append(field);
         field.select();
         let copied = false;
-        try { copied = document.execCommand('copy'); } catch { /* Offer manual copying below. */ }
+        try { copied = document.execCommand('copy'); } catch {}
         field.remove();
         previousFocus?.focus({ preventScroll: true });
         showToast(copied ? 'Discord username copied: con.dev' : 'Copy manually: con.dev');
